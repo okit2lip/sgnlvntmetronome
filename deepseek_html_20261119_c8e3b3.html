@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Метроном «Ломай ритм» v5</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: #12141a; color: #e8e8ea; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    padding: 20px;
+  }
+  .app {
+    width: 100%; max-width: 680px; background: #1b1e27; border-radius: 20px;
+    padding: 24px; box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  h1 { font-size: 18px; margin: 0 0 4px; font-weight: 600; }
+  .sub { font-size: 13px; color: #8b90a0; margin-bottom: 20px; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+  .tab {
+    flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #2e3342; background: #12141a;
+    color: #8b90a0; font-size: 14px; font-weight: 600; cursor: pointer; transition: .15s;
+  }
+  .tab.active { background: #5b8cff; border-color: #5b8cff; color: #fff; }
+
+  .layer { display: none; }
+  .layer.active { display: block; }
+
+  .row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+  .field { flex: 1; min-width: 120px; }
+  label { display: block; font-size: 12px; color: #8b90a0; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+  input[type=number], select, input[type=text] {
+    width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #2e3342;
+    background: #12141a; color: #e8e8ea; font-size: 15px; outline: none;
+  }
+  input:focus, select:focus { border-color: #5b8cff; }
+
+  input.invalid { border-color: #ff5b6e !important; background: #2a1619 !important; }
+  .group-msg { font-size: 12px; margin-top: 6px; min-height: 16px; line-height: 1.3; }
+  .group-msg.err { color: #ff8b98; }
+  .group-msg.ok  { color: #6ee7a0; }
+  .group-msg.hint { color: #6b7080; }
+
+  .tempo-val { font-size: 26px; font-weight: 700; text-align: center; margin: 2px 0 10px; }
+  input[type=range] { width: 100%; accent-color: #5b8cff; }
+
+  .beats {
+    display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 16px 0;
+    min-height: 56px;
+  }
+  .beat {
+    width: 42px; height: 56px; border-radius: 9px; background: #232838; border: 2px solid #2e3342;
+    display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;
+    color: #8b90a0; transition: transform .06s, background .06s, border-color .06s;
+  }
+  .beat.active { background: #5b8cff; border-color: #7aa2ff; color: #fff; transform: scale(1.1); }
+  .beat.accent { border-color: #ff9f43; color: #ff9f43; }
+
+  .controls { display: flex; gap: 12px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+  button {
+    padding: 12px 24px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: background .15s, transform .06s;
+  }
+  button:active { transform: scale(.96); }
+  #startBtn { background: #5b8cff; color: #fff; }
+  #startBtn.stop { background: #ff5b6e; }
+  #tapBtn, #saveBtn { background: #2e3342; color: #c7cbd8; }
+  .tap-info { text-align: center; font-size: 12px; color: #8b90a0; margin-top: 8px; }
+
+  .poly-layers { display: flex; gap: 14px; flex-wrap: wrap; }
+  .poly-card {
+    flex: 1; min-width: 280px; background: #161922; border-radius: 14px; padding: 16px;
+    border: 1px solid #2e3342;
+  }
+  .poly-card h3 { margin: 0 0 10px; font-size: 14px; color: #c7cbd8; }
+
+  .presets { margin-top: 20px; border-top: 1px solid #2e3342; padding-top: 16px; }
+  .presets h3 { font-size: 13px; color: #8b90a0; margin: 0 0 10px; text-transform: uppercase; letter-spacing: .5px; }
+  .preset-list { display: flex; flex-direction: column; gap: 6px; }
+  .preset-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 8px 12px; background: #12141a; border-radius: 8px; border: 1px solid #2e3342;
+    font-size: 13px;
+  }
+  .preset-item span { flex: 1; color: #c7cbd8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .preset-item button {
+    padding: 6px 12px; font-size: 12px; border-radius: 6px; background: #2e3342; color: #c7cbd8;
+  }
+  .preset-item button.del { background: #3a1e24; color: #ff8b98; }
+  .empty { font-size: 13px; color: #6b7080; font-style: italic; }
+
+  .hint { font-size: 12px; color: #6b7080; margin-top: 18px; line-height: 1.5; }
+
+  .checkbox-row {
+    display: flex; align-items: center; gap: 8px; margin: 10px 0 4px;
+    font-size: 13px; color: #c7cbd8; cursor: pointer; user-select: none;
+  }
+  .checkbox-row input[type=checkbox] {
+    width: 18px; height: 18px; accent-color: #ff9f43; cursor: pointer;
+  }
+  .checkbox-row label { margin: 0; text-transform: none; letter-spacing: 0; font-size: 13px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Метроном «Ломай ритм» v5</h1>
+  <div class="sub">Размер, акценты, тембр клика, полиметрия и пресеты</div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="single">Один слой</button>
+    <button class="tab" data-tab="poly">Полиметрия</button>
+  </div>
+
+  <!-- ===== ОДИН СЛОЙ ===== -->
+  <div class="layer active" id="layer-single">
+    <div class="row">
+      <div class="field">
+        <label>Размер (числитель)</label>
+        <input type="number" id="num" value="5" min="1" max="24">
+      </div>
+      <div class="field">
+        <label>Знаменатель</label>
+        <select id="den">
+          <option value="2">2</option>
+          <option value="4" selected>4</option>
+          <option value="8">8</option>
+          <option value="16">16</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Тембр клика</label>
+        <select id="timbre">
+          <option value="square" selected>Square (резкий)</option>
+          <option value="sine">Sine (мягкий)</option>
+          <option value="triangle">Triangle</option>
+          <option value="sawtooth">Sawtooth</option>
+          <option value="noise">Шум (hi-hat)</option>
+          <option value="wood">Деревяшка (woodblock)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Темп: <span id="bpmLabel">100</span> BPM</label>
+        <input type="range" id="bpm" min="30" max="240" value="100">
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:6px;">
+      <label>Группировка (акценты), напр. «3+2»</label>
+      <input type="text" id="grouping" placeholder="напр. 3+2 или 2+2+3">
+      <div class="group-msg hint" id="groupMsg">Сумма групп должна равняться 5</div>
+    </div>
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="strongBeat" checked>
+      <label for="strongBeat">Акцент на 1-ю долю</label>
+    </div>
+
+    <div class="beats" id="beats"></div>
+
+    <div class="controls">
+      <button id="startBtn">▶ Старт</button>
+      <button id="tapBtn">Tap tempo</button>
+      <button id="saveBtn">💾 Сохранить пресет</button>
+    </div>
+    <div class="tap-info" id="tapInfo">Нажми 3–4 раза в нужном темпе</div>
+  </div>
+
+  <!-- ===== ПОЛИМЕТРИЯ ===== -->
+  <div class="layer" id="layer-poly">
+    <div class="poly-layers">
+      <div class="poly-card">
+        <h3>Слой A</h3>
+        <div class="row">
+          <div class="field">
+            <label>Размер</label>
+            <input type="number" id="numA" value="5" min="1" max="24">
+          </div>
+          <div class="field">
+            <label>Знамен.</label>
+            <select id="denA">
+              <option value="2">2</option>
+              <option value="4" selected>4</option>
+              <option value="8">8</option>
+              <option value="16">16</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Группировка</label>
+          <input type="text" id="groupingA" placeholder="3+2">
+          <div class="group-msg hint" id="groupMsgA">Сумма групп = 5</div>
+        </div>
+        <div class="field">
+          <label>Тембр</label>
+          <select id="timbreA">
+            <option value="sine" selected>Sine (мягкий)</option>
+            <option value="square">Square (резкий)</option>
+            <option value="triangle">Triangle</option>
+            <option value="sawtooth">Sawtooth</option>
+            <option value="noise">Шум (hi-hat)</option>
+            <option value="wood">Деревяшка</option>
+          </select>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="strongA" checked>
+          <label for="strongA">Акцент на 1-ю долю</label>
+        </div>
+        <div class="beats" id="beatsA"></div>
+      </div>
+
+      <div class="poly-card">
+        <h3>Слой B</h3>
+        <div class="row">
+          <div class="field">
+            <label>Размер</label>
+            <input type="number" id="numB" value="4" min="1" max="24">
+          </div>
+          <div class="field">
+            <label>Знамен.</label>
+            <select id="denB">
+              <option value="2">2</option>
+              <option value="4" selected>4</option>
+              <option value="8">8</option>
+              <option value="16">16</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Группировка</label>
+          <input type="text" id="groupingB" placeholder="оставь пустым">
+          <div class="group-msg hint" id="groupMsgB">Сумма групп = 4</div>
+        </div>
+        <div class="field">
+          <label>Тембр</label>
+          <select id="timbreB">
+            <option value="square" selected>Square (резкий)</option>
+            <option value="sine">Sine (мягкий)</option>
+            <option value="triangle">Triangle</option>
+            <option value="sawtooth">Sawtooth</option>
+            <option value="noise">Шум (hi-hat)</option>
+            <option value="wood">Деревяшка</option>
+          </select>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="strongB" checked>
+          <label for="strongB">Акцент на 1-ю долю</label>
+        </div>
+        <div class="beats" id="beatsB"></div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:16px;">
+      <label>Общий темп: <span id="bpmLabelPoly">100</span> BPM</label>
+      <input type="range" id="bpmPoly" min="30" max="240" value="100">
+    </div>
+
+    <div class="controls">
+      <button id="startPolyBtn">▶ Старт полиметрии</button>
+      <button id="savePolyBtn">💾 Сохранить пресет</button>
+    </div>
+    <div class="hint" style="margin-top:12px;">
+      Слой A и B могут иметь разные тембры — так сетки легче различать на слух.
+    </div>
+  </div>
+
+  <!-- ===== ПРЕСЕТЫ ===== -->
+  <div class="presets">
+    <h3>Сохранённые пресеты</h3>
+    <div class="preset-list" id="presetList"></div>
+  </div>
+
+  <div class="hint">
+    <strong>Советы:</strong><br>
+    • <em>Sine</em> — мягкий пульс, хорошо для длительных занятий.<br>
+    • <em>Square</em> — резкий, пробивается через инструмент.<br>
+    • <em>Noise</em> — «хай-хэт», удобно для тренировки грува.<br>
+    • <em>Wood</em> — акустический «стук», ближе к живому метроному.<br>
+    • В полиметрии ставьте разные тембры на A и B, чтобы слышать оба слоя.
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+
+  // ---------- AudioContext ----------
+  let audioCtx = null;
+  function ensureAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  const LOOKAHEAD = 25;
+  const SCHEDULE_AHEAD = 0.1;
+
+  function beatSeconds(bpm, den) {
+    return (60 / bpm) * (4 / den);
+  }
+
+  // ---------- Валидация группировки ----------
+  function validateGrouping(n, raw) {
+    const str = (raw || '').trim();
+    if (str === '') return { groups: null, valid: true, error: false, message: `Пусто — только базовый акцент, размер ${n}` };
+    if (!/^\d+(\+\d+)*$/.test(str)) return { groups: null, valid: false, error: true, message: 'Только цифры и «+», например 3+2' };
+    const parts = str.split('+').map(x => parseInt(x, 10));
+    if (parts.some(p => p <= 0)) return { groups: null, valid: false, error: true, message: 'Каждая группа должна быть ≥ 1' };
+    const sum = parts.reduce((a, b) => a + b, 0);
+    if (sum !== n) return { groups: null, valid: false, error: true, message: `Сумма групп = ${sum}, а нужно ровно ${n}` };
+    return { groups: parts, valid: true, error: false, message: `OK: ${parts.join(' + ')} = ${n}` };
+  }
+
+  function buildAccents(n, raw, strongBeat) {
+    const accents = new Array(n).fill(false);
+    if (strongBeat) accents[0] = true;
+    const v = validateGrouping(n, raw);
+    if (v.valid && v.groups) {
+      let pos = 0;
+      for (const g of v.groups) {
+        if (pos < n) accents[pos] = true;
+        pos += g;
+      }
+    }
+    return accents;
+  }
+
+  // ---------- Звуки ----------
+  // Кэш буфера шума, создаём один раз
+  let noiseBuffer = null;
+  function getNoiseBuffer(ctx) {
+    if (noiseBuffer) return noiseBuffer;
+    const len = ctx.sampleRate * 0.1;
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    noiseBuffer = buf;
+    return buf;
+  }
+
+  /**
+   * Проигрывает клик выбранным тембром.
+   * accent — громче и выше, обычная доля — тише и ниже.
+   * baseFreq — базовая частота для слоя (A выше, B ниже).
+   */
+  function playClick(timbre, isAccent, baseFreq) {
+    const ctx = audioCtx;
+    const now = ctx.currentTime;
+    const peak = isAccent ? 0.32 : 0.16;
+
+    if (timbre === 'noise') {
+      const src = ctx.createBufferSource();
+      src.buffer = getNoiseBuffer(ctx);
+      const gain = ctx.createGain();
+      const hp = ctx.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.value = isAccent ? 6000 : 4000;
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(peak, now + 0.002);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + (isAccent ? 0.08 : 0.05));
+      src.connect(hp).connect(gain).connect(ctx.destination);
+      src.start(now);
+      src.stop(now + 0.1);
+      return;
+    }
+
+    if (timbre === 'wood') {
+      // Короткий «стук»: два осциллятора + быстрый спад + bandpass
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = isAccent ? 1800 : 1400;
+      bp.Q.value = 8;
+      osc1.type = 'triangle';
+      osc2.type = 'sine';
+      osc1.frequency.value = isAccent ? 900 : 700;
+      osc2.frequency.value = isAccent ? 1500 : 1200;
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(peak * 1.1, now + 0.001);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(bp).connect(ctx.destination);
+      osc1.start(now); osc1.stop(now + 0.07);
+      osc2.start(now); osc2.stop(now + 0.07);
+      return;
+    }
+
+    // Осцилляторные тембры: sine, square, triangle, sawtooth
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = timbre;
+    const freq = isAccent ? baseFreq * 1.5 : baseFreq;
+    osc.frequency.setValueAtTime(freq, now);
+    // Лёгкий спад частоты для «щелчка»
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.95, now + 0.02);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(peak, now + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.07);
+  }
+
+  function highlight(container, index) {
+    [...container.children].forEach(el => el.classList.remove('active'));
+    const el = container.children[index];
+    if (el) {
+      el.classList.add('active');
+      setTimeout(() => el.classList.remove('active'), 80);
+    }
+  }
+
+  function renderBeatGrid(container, n, accents) {
+    container.innerHTML = '';
+    for (let i = 0; i < n; i++) {
+      const d = document.createElement('div');
+      d.className = 'beat' + (accents[i] ? ' accent' : '');
+      d.textContent = i + 1;
+      container.appendChild(d);
+    }
+  }
+
+  function updateGroupingUI(inputEl, msgEl, n) {
+    const v = validateGrouping(n, inputEl.value);
+    inputEl.classList.toggle('invalid', !v.valid);
+    msgEl.className = 'group-msg ' + (v.error ? 'err' : (v.groups ? 'ok' : 'hint'));
+    msgEl.textContent = v.error ? v.message : (v.groups ? v.message : `Сумма групп должна равняться ${n}`);
+    return v.valid;
+  }
+
+  // ---------- Один слой ----------
+  const single = {
+    playing: false, timerId: null, currentBeat: 0, nextNoteTime: 0,
+    el: {
+      num: $('num'), den: $('den'), bpm: $('bpm'), bpmLbl: $('bpmLabel'),
+      grouping: $('grouping'), groupMsg: $('groupMsg'), timbre: $('timbre'),
+      strong: $('strongBeat'), beats: $('beats'),
+      startBtn: $('startBtn'), tapBtn: $('tapBtn'), saveBtn: $('saveBtn'), tapInfo: $('tapInfo')
+    }
+  };
+  function singleGetBeats() { return Math.max(1, Math.min(24, parseInt(single.el.num.value, 10) || 4)); }
+  function singleRender() {
+    const n = singleGetBeats();
+    updateGroupingUI(single.el.grouping, single.el.groupMsg, n);
+    renderBeatGrid(single.el.beats, n, buildAccents(n, single.el.grouping.value, single.el.strong.checked));
+    if (single.currentBeat >= n) single.currentBeat = 0;
+  }
+  function singleScheduler() {
+    if (!single.playing) return;
+    while (single.nextNoteTime < audioCtx.currentTime + SCHEDULE_AHEAD) {
+      const n = singleGetBeats();
+      const accents = buildAccents(n, single.el.grouping.value, single.el.strong.checked);
+      const dur = beatSeconds(parseInt(single.el.bpm.value, 10), parseInt(single.el.den.value, 10));
+      const idx = single.currentBeat % n;
+      playClick(single.el.timbre.value, accents[idx], 800);
+      const delay = Math.max(0, (single.nextNoteTime - audioCtx.currentTime) * 1000);
+      setTimeout(() => { if (single.playing) highlight(single.el.beats, idx); }, delay);
+      single.nextNoteTime += dur;
+      single.currentBeat = (single.currentBeat + 1) % n;
+    }
+    single.timerId = setTimeout(singleScheduler, LOOKAHEAD);
+  }
+  function singleStart() {
+    ensureAudio();
+    single.playing = true; single.currentBeat = 0;
+    single.nextNoteTime = audioCtx.currentTime + 0.05;
+    single.el.startBtn.textContent = '■ Стоп';
+    single.el.startBtn.classList.add('stop');
+    singleRender(); singleScheduler();
+  }
+  function singleStop() {
+    single.playing = false; clearTimeout(single.timerId);
+    single.el.startBtn.textContent = '▶ Старт';
+    single.el.startBtn.classList.remove('stop');
+    [...single.el.beats.children].forEach(el => el.classList.remove('active'));
+  }
+  single.el.startBtn.addEventListener('click', () => single.playing ? singleStop() : singleStart());
+  single.el.bpm.addEventListener('input', () => { single.el.bpmLbl.textContent = single.el.bpm.value; });
+  single.el.num.addEventListener('input', singleRender);
+  single.el.grouping.addEventListener('input', singleRender);
+  single.el.strong.addEventListener('change', singleRender);
+  // Предпрослушивание тембра при смене
+  single.el.timbre.addEventListener('change', () => {
+    ensureAudio();
+    playClick(single.el.timbre.value, true, 800);
+  });
+
+  let tapTimes = [];
+  single.el.tapBtn.addEventListener('click', () => {
+    const now = performance.now();
+    tapTimes = tapTimes.filter(t => now - t < 2000);
+    tapTimes.push(now);
+    if (tapTimes.length >= 2) {
+      const iv = [];
+      for (let i = 1; i < tapTimes.length; i++) iv.push(tapTimes[i] - tapTimes[i-1]);
+      const avg = iv.reduce((a,b) => a+b, 0) / iv.length;
+      const bpm = Math.round(60000 / avg);
+      if (bpm >= 30 && bpm <= 240) {
+        single.el.bpm.value = bpm;
+        single.el.bpmLbl.textContent = bpm;
+        single.el.tapInfo.textContent = `~${bpm} BPM`;
+      }
+    }
+  });
+
+  // ---------- Полиметрия ----------
+  const poly = {
+    playing: false, timerId: null,
+    A: { currentBeat: 0, nextNoteTime: 0 },
+    B: { currentBeat: 0, nextNoteTime: 0 },
+    el: {
+      numA: $('numA'), denA: $('denA'), groupingA: $('groupingA'), groupMsgA: $('groupMsgA'),
+      timbreA: $('timbreA'), strongA: $('strongA'), beatsA: $('beatsA'),
+      numB: $('numB'), denB: $('denB'), groupingB: $('groupingB'), groupMsgB: $('groupMsgB'),
+      timbreB: $('timbreB'), strongB: $('strongB'), beatsB: $('beatsB'),
+      bpm: $('bpmPoly'), bpmLbl: $('bpmLabelPoly'),
+      startBtn: $('startPolyBtn'), saveBtn: $('savePolyBtn')
+    }
+  };
+  function polyRender() {
+    const nA = Math.max(1, Math.min(24, parseInt(poly.el.numA.value, 10) || 4));
+    const nB = Math.max(1, Math.min(24, parseInt(poly.el.numB.value, 10) || 4));
+    updateGroupingUI(poly.el.groupingA, poly.el.groupMsgA, nA);
+    updateGroupingUI(poly.el.groupingB, poly.el.groupMsgB, nB);
+    renderBeatGrid(poly.el.beatsA, nA, buildAccents(nA, poly.el.groupingA.value, poly.el.strongA.checked));
+    renderBeatGrid(poly.el.beatsB, nB, buildAccents(nB, poly.el.groupingB.value, poly.el.strongB.checked));
+  }
+  function polyScheduler() {
+    if (!poly.playing) return;
+    const now = audioCtx.currentTime;
+    const bpm = parseInt(poly.el.bpm.value, 10);
+
+    const nA = Math.max(1, Math.min(24, parseInt(poly.el.numA.value, 10) || 4));
+    const accA = buildAccents(nA, poly.el.groupingA.value, poly.el.strongA.checked);
+    const durA = beatSeconds(bpm, parseInt(poly.el.denA.value, 10));
+    while (poly.A.nextNoteTime < now + SCHEDULE_AHEAD) {
+      const idx = poly.A.currentBeat % nA;
+      playClick(poly.el.timbreA.value, accA[idx], 1000);
+      const delay = Math.max(0, (poly.A.nextNoteTime - now) * 1000);
+      setTimeout(() => { if (poly.playing) highlight(poly.el.beatsA, idx); }, delay);
+      poly.A.nextNoteTime += durA;
+      poly.A.currentBeat = (poly.A.currentBeat + 1) % nA;
+    }
+
+    const nB = Math.max(1, Math.min(24, parseInt(poly.el.numB.value, 10) || 4));
+    const accB = buildAccents(nB, poly.el.groupingB.value, poly.el.strongB.checked);
+    const durB = beatSeconds(bpm, parseInt(poly.el.denB.value, 10));
+    while (poly.B.nextNoteTime < now + SCHEDULE_AHEAD) {
+      const idx = poly.B.currentBeat % nB;
+      playClick(poly.el.timbreB.value, accB[idx], 500);
+      const delay = Math.max(0, (poly.B.nextNoteTime - now) * 1000);
+      setTimeout(() => { if (poly.playing) highlight(poly.el.beatsB, idx); }, delay);
+      poly.B.nextNoteTime += durB;
+      poly.B.currentBeat = (poly.B.currentBeat + 1) % nB;
+    }
+
+    poly.timerId = setTimeout(polyScheduler, LOOKAHEAD);
+  }
+  function polyStart() {
+    ensureAudio();
+    poly.playing = true;
+    const t = audioCtx.currentTime + 0.05;
+    poly.A.currentBeat = 0; poly.A.nextNoteTime = t;
+    poly.B.currentBeat = 0; poly.B.nextNoteTime = t;
+    poly.el.startBtn.textContent = '■ Стоп';
+    poly.el.startBtn.style.background = '#ff5b6e';
+    polyRender(); polyScheduler();
+  }
+  function polyStop() {
+    poly.playing = false; clearTimeout(poly.timerId);
+    poly.el.startBtn.textContent = '▶ Старт полиметрии';
+    poly.el.startBtn.style.background = '';
+    [...poly.el.beatsA.children, ...poly.el.beatsB.children].forEach(el => el.classList.remove('active'));
+  }
+  poly.el.startBtn.addEventListener('click', () => poly.playing ? polyStop() : polyStart());
+  poly.el.bpm.addEventListener('input', () => { poly.el.bpmLbl.textContent = poly.el.bpm.value; });
+  ['numA','numB','groupingA','groupingB'].forEach(k => poly.el[k].addEventListener('input', polyRender));
+  poly.el.strongA.addEventListener('change', polyRender);
+  poly.el.strongB.addEventListener('change', polyRender);
+  // Предпрослушивание тембров поли
+  poly.el.timbreA.addEventListener('change', () => { ensureAudio(); playClick(poly.el.timbreA.value, true, 1000); });
+  poly.el.timbreB.addEventListener('change', () => { ensureAudio(); playClick(poly.el.timbreB.value, true, 500); });
+
+  // ---------- Вкладки ----------
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
+      tab.classList.add('active');
+      $('layer-' + tab.dataset.tab).classList.add('active');
+      if (tab.dataset.tab === 'poly' && single.playing) singleStop();
+      if (tab.dataset.tab === 'single' && poly.playing) polyStop();
+    });
+  });
+
+  // ---------- Пресеты ----------
+  const STORAGE_KEY = 'metronome_presets_v5';
+
+  function loadPresets() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; }
+  }
+  function savePresets(list) { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+
+  function renderPresets() {
+    const list = loadPresets();
+    const container = $('presetList');
+    container.innerHTML = '';
+    if (list.length === 0) {
+      container.innerHTML = '<div class="empty">Пока нет сохранённых пресетов</div>';
+      return;
+    }
+    list.forEach((p, i) => {
+      const item = document.createElement('div');
+      item.className = 'preset-item';
+      item.innerHTML = `
+        <span>${p.name}</span>
+        <button data-load="${i}">Загрузить</button>
+        <button class="del" data-del="${i}">✕</button>
+      `;
+      container.appendChild(item);
+    });
+    container.querySelectorAll('[data-load]').forEach(btn => {
+      btn.addEventListener('click', () => loadPreset(parseInt(btn.dataset.load, 10)));
+    });
+    container.querySelectorAll('[data-del]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const list = loadPresets();
+        list.splice(parseInt(btn.dataset.del, 10), 1);
+        savePresets(list); renderPresets();
+      });
+    });
+  }
+
+  function loadPreset(i) {
+    const p = loadPresets()[i];
+    if (!p) return;
+    if (p.type === 'single') {
+      document.querySelector('.tab[data-tab="single"]').click();
+      single.el.num.value = p.num;
+      single.el.den.value = p.den;
+      single.el.bpm.value = p.bpm;
+      single.el.bpmLbl.textContent = p.bpm;
+      single.el.grouping.value = p.grouping;
+      single.el.timbre.value = p.timbre || 'square';
+      single.el.strong.checked = p.strong !== false;
+      singleRender();
+    } else if (p.type === 'poly') {
+      document.querySelector('.tab[data-tab="poly"]').click();
+      poly.el.numA.value = p.numA; poly.el.denA.value = p.denA;
+      poly.el.groupingA.value = p.groupingA;
+      poly.el.timbreA.value = p.timbreA || 'sine';
+      poly.el.strongA.checked = p.strongA !== false;
+      poly.el.numB.value = p.numB; poly.el.denB.value = p.denB;
+      poly.el.groupingB.value = p.groupingB;
+      poly.el.timbreB.value = p.timbreB || 'square';
+      poly.el.strongB.checked = p.strongB !== false;
+      poly.el.bpm.value = p.bpm;
+      poly.el.bpmLbl.textContent = p.bpm;
+      polyRender();
+    }
+  }
+
+  function canSave(inputEl, n, label) {
+    const v = validateGrouping(n, inputEl.value);
+    if (!v.valid) {
+      alert(`Группировка в поле «${label}» некорректна:\n${v.message}\n\nИсправь или очисти поле перед сохранением.`);
+      return false;
+    }
+    return true;
+  }
+
+  single.el.saveBtn.addEventListener('click', () => {
+    const n = singleGetBeats();
+    if (!canSave(single.el.grouping, n, 'Группировка')) return;
+    const den = parseInt(single.el.den.value, 10);
+    const grp = single.el.grouping.value.trim();
+    const strong = single.el.strong.checked;
+    const timbre = single.el.timbre.value;
+    const timbreNames = { square:'Sq', sine:'Sine', triangle:'Tri', sawtooth:'Saw', noise:'Noise', wood:'Wood' };
+    const name = `${n}/${den}${grp ? ' ('+grp+')' : ''} · ${timbreNames[timbre]}${strong ? '' : ' · без акц.'} — ${single.el.bpm.value} BPM`;
+    const list = loadPresets();
+    list.push({
+      type: 'single', name, num: n, den, bpm: parseInt(single.el.bpm.value, 10),
+      grouping: grp, strong, timbre
+    });
+    savePresets(list); renderPresets();
+  });
+
+  poly.el.saveBtn.addEventListener('click', () => {
+    const nA = parseInt(poly.el.numA.value, 10);
+    const nB = parseInt(poly.el.numB.value, 10);
+    if (!canSave(poly.el.groupingA, nA, 'Слой A')) return;
+    if (!canSave(poly.el.groupingB, nB, 'Слой B')) return;
+    const strongA = poly.el.strongA.checked;
+    const strongB = poly.el.strongB.checked;
+    const timbreA = poly.el.timbreA.value;
+    const timbreB = poly.el.timbreB.value;
+    const tn = { square:'Sq', sine:'Sine', triangle:'Tri', sawtooth:'Saw', noise:'Noise', wood:'Wood' };
+    const name = `Поли: ${nA}/${poly.el.denA.value}·${tn[timbreA]} vs ${nB}/${poly.el.denB.value}·${tn[timbreB]} — ${poly.el.bpm.value} BPM`;
+    const list = loadPresets();
+    list.push({
+      type: 'poly', name,
+      numA: nA, denA: poly.el.denA.value, groupingA: poly.el.groupingA.value.trim(), strongA, timbreA,
+      numB: nB, denB: poly.el.denB.value, groupingB: poly.el.groupingB.value.trim(), strongB, timbreB,
+      bpm: parseInt(poly.el.bpm.value, 10)
+    });
+    savePresets(list); renderPresets();
+  });
+
+  // ---------- Init ----------
+  singleRender(); polyRender();
+  single.el.bpmLbl.textContent = single.el.bpm.value;
+  poly.el.bpmLbl.textContent = poly.el.bpm.value;
+  renderPresets();
+})();
+</script>
+</body>
+</html>
