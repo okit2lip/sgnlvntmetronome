@@ -33,7 +33,11 @@
   .app {
     width: 100%; max-width: 680px; padding: 26px; position: relative; isolation: isolate;
     border-radius: 28px;
-    background: linear-gradient(150deg, rgba(255,255,255,.14), rgba(255,255,255,.04) 55%, rgba(255,255,255,.08));
+    /* Тёмная подложка под «стеклом»: без неё яркие блобы фона просвечивают
+       и светлые надписи теряют контраст (становятся «невидимыми»). */
+    background:
+      linear-gradient(150deg, rgba(255,255,255,.14), rgba(255,255,255,.04) 55%, rgba(255,255,255,.08)),
+      rgba(10,12,22,.62);
     border: 1px solid rgba(255,255,255,.18);
     backdrop-filter: blur(26px) saturate(170%);
     -webkit-backdrop-filter: blur(26px) saturate(170%);
@@ -45,7 +49,7 @@
     background: radial-gradient(150% 90% at 0% 0%, rgba(255,255,255,.2), transparent 58%);
   }
   h1 { font-size: 19px; margin: 0 0 4px; font-weight: 650; color: #fff; letter-spacing: .2px; }
-  .sub { font-size: 13px; color: #aab1c4; margin-bottom: 20px; }
+  .sub { font-size: 13px; color: #c6cddd; margin-bottom: 20px; }
 
   .header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
   .logo {
@@ -64,7 +68,7 @@
   }
   .tab {
     flex: 1; padding: 10px; border-radius: 13px; border: 1px solid transparent; background: transparent;
-    color: #aab1c4; font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s;
+    color: #c6cddd; font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s;
   }
   .tab:hover { color: #fff; background: rgba(255,255,255,.07); }
   .tab.active {
@@ -78,7 +82,7 @@
 
   .row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
   .field { flex: 1; min-width: 120px; }
-  label { display: block; font-size: 12px; color: #9aa1b5; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .6px; }
+  label { display: block; font-size: 12px; color: #ccd2e0; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .6px; }
   input[type=number], select, input[type=text] {
     width: 100%; padding: 11px 13px; border-radius: 14px; border: 1px solid rgba(255,255,255,.16);
     background: rgba(255,255,255,.07); color: #eef0f6; font-size: 15px; outline: none;
@@ -87,6 +91,9 @@
     transition: border-color .2s, background .2s, box-shadow .2s;
   }
   select option { background: #161a26; color: #eef0f6; }
+  /* Плейсхолдер по умолчанию почти не виден на тёмном стекле — задаём явный цвет */
+  input::placeholder { color: #b6bed2; opacity: 1; }
+  input::-webkit-input-placeholder { color: #b6bed2; opacity: 1; }
   input:focus, select:focus {
     border-color: rgba(130,170,255,.9); background: rgba(255,255,255,.13);
     box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 0 0 4px rgba(91,140,255,.25);
@@ -97,7 +104,7 @@
   .group-msg { font-size: 12px; margin-top: 6px; min-height: 16px; line-height: 1.3; }
   .group-msg.err { color: #ff9aa6; }
   .group-msg.ok  { color: #7ee7a8; }
-  .group-msg.hint { color: #7c8296; }
+  .group-msg.hint { color: #a7afc4; }
 
   .tempo-val { font-size: 26px; font-weight: 700; text-align: center; margin: 2px 0 10px; color: #fff; }
 
@@ -147,7 +154,7 @@
     width: 42px; height: 56px; border-radius: 13px; background: rgba(255,255,255,.06);
     border: 1.5px solid rgba(255,255,255,.14); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;
-    color: #aab1c4; box-shadow: inset 0 1px 0 rgba(255,255,255,.14);
+    color: #c6cddd; box-shadow: inset 0 1px 0 rgba(255,255,255,.14);
     transition: transform .08s, background .15s, border-color .15s, box-shadow .15s, color .15s;
   }
   .beat.active {
@@ -203,12 +210,12 @@
     box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 4px 10px rgba(0,0,0,.22);
   }
   #saveBtn:hover, #savePolyBtn:hover { color: #eef0f6; background: rgba(255,255,255,.12); }
-  .tap-info { text-align: center; font-size: 12px; color: #aab1c4; margin-top: 8px; }
+  .tap-info { text-align: center; font-size: 12px; color: #c6cddd; margin-top: 8px; }
 
   /* Быстрый переключатель пресетов под кнопками Старт / Tap tempo */
   .preset-bar { display: flex; gap: 8px; align-items: stretch; margin-top: 14px; }
   .preset-bar select { flex: 1; min-width: 0; }
-  .preset-bar select:disabled { opacity: .55; cursor: default; }
+  .preset-bar select:disabled { opacity: .8; cursor: default; }
   .preset-nav {
     flex: 0 0 auto; width: 54px; min-height: 52px; padding: 0;
     font-size: 26px; font-weight: 700; line-height: 1; border-radius: 16px;
@@ -223,10 +230,13 @@
     backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
     box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 14px 34px rgba(0,0,0,.28);
   }
-  .poly-card h3 { margin: 0 0 10px; font-size: 14px; color: #dfe3ee; }
+  .poly-card h3 { margin: 0 0 10px; font-size: 14px; color: #e4e8f1; }
+  /* Равномерные отступы между полями карточки слоя, чтобы подписи не «слипались» */
+  .poly-card .row { margin-bottom: 0; }
+  .poly-card .field { margin-bottom: 12px; }
 
   .presets { margin-top: 22px; border-top: 1px solid rgba(255,255,255,.12); padding-top: 16px; }
-  .presets h3 { font-size: 13px; color: #9aa1b5; margin: 0 0 10px; text-transform: uppercase; letter-spacing: .6px; }
+  .presets h3 { font-size: 13px; color: #c6cddd; margin: 0 0 10px; text-transform: uppercase; letter-spacing: .6px; }
   .preset-list { display: flex; flex-direction: column; gap: 6px; }
   .preset-item {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
@@ -241,10 +251,10 @@
     color: #d6d9e4; box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 4px 10px rgba(0,0,0,.25);
   }
   .preset-item button.del { background: rgba(255,91,110,.18); color: #ff9aa6; border-color: rgba(255,91,110,.3); }
-  .empty { font-size: 13px; color: #7c8296; font-style: italic; }
+  .empty { font-size: 13px; color: #a7afc4; font-style: italic; }
 
-  .hint { font-size: 12px; color: #7c8296; margin-top: 18px; line-height: 1.5; }
-  .hint strong { color: #c3c8d6; }
+  .hint { font-size: 12px; color: #a7afc4; margin-top: 18px; line-height: 1.5; }
+  .hint strong { color: #e4e8f1; }
 
   /* Компактный переключатель «Акцент на сильную долю» в стиле liquid glass */
   .checkbox-row {
@@ -296,6 +306,78 @@
   .checkbox-row input[type=checkbox]:focus-visible + .switch {
     outline: 3px solid rgba(130,170,255,.95); outline-offset: 3px;
   }
+
+  /* ---------- Микширование нот ---------- */
+  .mix {
+    margin: 16px 0 6px; padding: 14px 16px; border-radius: 18px;
+    background: linear-gradient(150deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
+    border: 1px solid rgba(255,255,255,.13);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 12px 30px rgba(0,0,0,.25);
+  }
+  /* Заголовок блока — тот же переключатель, что и «Акцент на сильную долю» */
+  .mix .mix-toggle { margin: 0 0 14px; }
+  .mix .mix-toggle .checkbox-text {
+    font-size: 12px; font-weight: 600; letter-spacing: .6px;
+    text-transform: uppercase; color: #c6cddd;
+  }
+  /* Выключенный блок — приглушаем и блокируем фейдеры */
+  .mix.off .mix-faders { opacity: .35; filter: grayscale(.7); }
+  .mix.off .mix-faders input[type=range] { cursor: default; }
+
+  /* Вертикальные фейдеры громкости слоёв — как на микшерном пульте */
+  .mix-faders { display: flex; gap: 4px; align-items: stretch; justify-content: space-between; }
+  .mix-fader { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  /* Слот задаёт длину фейдера; сам ползунок внутри развёрнут на 90° */
+  .mix-slot { position: relative; width: 100%; height: 170px; }
+  .mix .mix-slot input[type=range] {
+    position: absolute; top: 50%; left: 50%; width: 170px; height: 34px;
+    flex: 0 0 auto; margin: 0; transform: translate(-50%, -50%) rotate(-90deg);
+  }
+  .mix-fader .mix-val {
+    flex: 0 0 auto; text-align: center; font-size: 12px; color: #cdd3e0;
+    font-variant-numeric: tabular-nums;
+  }
+  .mix-fader label {
+    flex: 0 0 auto; margin: 0; font-size: 12px; text-align: center; color: #e4e8f1;
+    text-transform: none; letter-spacing: normal; line-height: 1.2; cursor: pointer;
+  }
+  /* Цвет каждого слоя */
+  .mix-fader.accent    { --mix-color: #ffb45a; }
+  .mix-fader.quarter   { --mix-color: #5b8cff; }
+  .mix-fader.eighth    { --mix-color: #37d6c4; }
+  .mix-fader.sixteenth { --mix-color: #ff5b9e; }
+  .mix-fader.triplet   { --mix-color: #a98bff; }
+
+  /* Компактный ползунок громкости слоя (перебивает общий крупный input[type=range]) */
+  .mix input[type=range] { width: auto; flex: 1 1 auto; min-width: 0; height: 26px; margin: 0; }
+  .mix input[type=range]::-webkit-slider-runnable-track {
+    height: 8px; border-radius: 999px;
+    background: linear-gradient(90deg, var(--mix-color, #5b8cff) var(--p, 100%), rgba(255,255,255,.16) var(--p, 100%));
+    border: 1px solid rgba(255,255,255,.16);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.14), inset 0 -1px 3px rgba(0,0,0,.25);
+  }
+  .mix input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 18px; height: 18px; margin-top: -5px; border-radius: 50%;
+    background: linear-gradient(160deg, #ffffff, #dfe4ef);
+    border: 1px solid rgba(255,255,255,.9);
+    box-shadow: 0 2px 6px rgba(0,0,0,.4);
+  }
+  .mix input[type=range]::-moz-range-track {
+    height: 8px; border-radius: 999px; background: rgba(255,255,255,.16);
+    border: 1px solid rgba(255,255,255,.16);
+  }
+  .mix input[type=range]::-moz-range-progress {
+    height: 8px; border-radius: 999px; background: var(--mix-color, #5b8cff);
+  }
+  .mix input[type=range]::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%; background: #fff;
+    border: 1px solid rgba(255,255,255,.9); box-shadow: 0 2px 6px rgba(0,0,0,.4);
+  }
+  /* Толщина дорожки в вертикальном режиме остаётся 8px: ползунок развёрнут, а не переориентирован */
+  .mix .mix-slot input[type=range]::-webkit-slider-runnable-track { height: 8px; }
+  .mix .mix-slot input[type=range]::-moz-range-track { height: 8px; }
 
   /* На узких экранах крупные кнопки занимают всю ширину и остаются удобными для пальца */
   @media (max-width: 520px) {
@@ -394,6 +476,53 @@
 
     <div class="beats" id="beats"></div>
 
+    <div class="mix" id="mixBlock">
+      <!-- Тот же переключатель, что и «Акцент на сильную долю»: выключает весь блок -->
+      <label class="checkbox-row mix-toggle">
+        <input type="checkbox" id="mixEnabled" checked>
+        <span class="switch" aria-hidden="true"></span>
+        <span class="checkbox-text">Микширование нот</span>
+      </label>
+      <!-- Вертикальные фейдеры — удобно работать на сцене -->
+      <div class="mix-faders">
+        <div class="mix-fader accent">
+          <div class="mix-slot">
+            <input type="range" id="mixAccent" min="0" max="100" value="100">
+          </div>
+          <span class="mix-val" id="mixAccentVal">100%</span>
+          <label for="mixAccent" title="Акцент (сильная доля)">Акцент</label>
+        </div>
+        <div class="mix-fader quarter">
+          <div class="mix-slot">
+            <input type="range" id="mixQuarter" min="0" max="100" value="100">
+          </div>
+          <span class="mix-val" id="mixQuarterVal">100%</span>
+          <label for="mixQuarter" title="Четвертные">Четверти</label>
+        </div>
+        <div class="mix-fader eighth">
+          <div class="mix-slot">
+            <input type="range" id="mixEighth" min="0" max="100" value="0">
+          </div>
+          <span class="mix-val" id="mixEighthVal">0%</span>
+          <label for="mixEighth" title="Восьмые">Восьмые</label>
+        </div>
+        <div class="mix-fader sixteenth">
+          <div class="mix-slot">
+            <input type="range" id="mixSixteenth" min="0" max="100" value="0">
+          </div>
+          <span class="mix-val" id="mixSixteenthVal">0%</span>
+          <label for="mixSixteenth" title="Шестнадцатые">16-е</label>
+        </div>
+        <div class="mix-fader triplet">
+          <div class="mix-slot">
+            <input type="range" id="mixTriplet" min="0" max="100" value="0">
+          </div>
+          <span class="mix-val" id="mixTripletVal">0%</span>
+          <label for="mixTriplet" title="Триоли">Триоли</label>
+        </div>
+      </div>
+    </div>
+
     <div class="controls">
       <button type="button" id="startBtn" class="btn-lg">▶ Старт</button>
       <button type="button" id="tapBtn" class="btn-lg">Tap tempo</button>
@@ -409,6 +538,8 @@
     <div class="save-row">
       <button type="button" id="saveBtn">💾 Сохранить пресет</button>
     </div>
+    <div class="tap-info" id="tapInfo">Нажми 3–4 раза в нужном темпе</div>
+  </div>
 
   <!-- ===== ПОЛИМЕТРИЯ ===== -->
   <div class="layer" id="layer-poly">
@@ -623,10 +754,11 @@
    * accent — громче и выше, обычная доля — тише и ниже.
    * baseFreq — базовая частота для слоя (A выше, B ниже).
    */
-  function playClick(timbre, isAccent, baseFreq) {
+  function playClick(timbre, isAccent, baseFreq, volume = 1, when = null) {
     const ctx = audioCtx;
-    const now = ctx.currentTime;
-    const peak = isAccent ? 0.32 : 0.16;
+    const now = (when == null) ? ctx.currentTime : when;
+    const peak = (isAccent ? 0.32 : 0.16) * volume;
+    if (peak <= 0.0002) return; // слой выключен — звук не создаём
 
     if (timbre === 'noise') {
       const src = ctx.createBufferSource();
@@ -718,9 +850,61 @@
       num: $('num'), den: $('den'), bpm: $('bpm'), bpmLbl: $('bpmLabel'),
       grouping: $('grouping'), groupMsg: $('groupMsg'), timbre: $('timbre'),
       strong: $('strongBeat'), beats: $('beats'),
+      mix: $('mixBlock'), mixEnabled: $('mixEnabled'),
       startBtn: $('startBtn'), tapBtn: $('tapBtn'), saveBtn: $('saveBtn'), tapInfo: $('tapInfo')
     }
   };
+  // ---------- Микширование нот ----------
+  // Пять слоёв громкости: акцент (сильная доля), четвертные, восьмые, шестнадцатые, триоли.
+  const MIX_KEYS = ['accent', 'quarter', 'eighth', 'sixteenth', 'triplet'];
+  const mixEls = MIX_KEYS.map(k => {
+    const id = 'mix' + k.charAt(0).toUpperCase() + k.slice(1);
+    return { key: k, input: $(id), val: $(id + 'Val') };
+  });
+  // Текущие уровни как множители 0..1
+  function singleMix() {
+    const m = {};
+    for (const { key, input } of mixEls) m[key] = (parseInt(input.value, 10) || 0) / 100;
+    return m;
+  }
+  // Обновляет подписи «%» и заливку дорожки
+  function syncMix() {
+    for (const { input, val } of mixEls) {
+      const v = parseInt(input.value, 10) || 0;
+      if (val) val.textContent = v + '%';
+      input.style.setProperty('--p', v + '%');
+    }
+  }
+  // Применяет сохранённые уровни (0..1); отсутствующие — по умолчанию
+  function applyMix(mix) {
+    const defaults = { accent: 1, quarter: 1, eighth: 0, sixteenth: 0, triplet: 0 };
+    for (const { key, input } of mixEls) {
+      const raw = (mix && mix[key] != null) ? mix[key] : defaults[key];
+      input.value = Math.max(0, Math.min(100, Math.round(raw * 100)));
+    }
+    syncMix();
+  }
+  mixEls.forEach(({ key, input }) => {
+    input.addEventListener('input', syncMix);
+    input.addEventListener('change', () => {
+      // Предпрослушивание уровня слоя (как у смены тембра)
+      ensureAudio();
+      const vol = (parseInt(input.value, 10) || 0) / 100;
+      playClick(single.el.timbre.value, key === 'accent', 800, vol);
+    });
+  });
+
+  // Включение/выключение всего блока микширования (тот же переключатель, что у акцента).
+  // При выключении фейдеры блокируются, а метроном играет только базовые доли.
+  function setMixEnabled(on) {
+    single.el.mixEnabled.checked = on;
+    single.el.mix.classList.toggle('off', !on);
+    for (const { input } of mixEls) input.disabled = !on;
+  }
+  single.el.mixEnabled.addEventListener('change', () => {
+    setMixEnabled(single.el.mixEnabled.checked);
+  });
+
   function singleGetBeats() { return Math.max(1, Math.min(24, parseInt(single.el.num.value, 10) || 4)); }
   function singleRender() {
     const n = singleGetBeats();
@@ -735,8 +919,29 @@
       const accents = buildAccents(n, single.el.grouping.value, single.el.strong.checked);
       const dur = beatSeconds(parseInt(single.el.bpm.value, 10), parseInt(single.el.den.value, 10));
       const idx = single.currentBeat % n;
-      playClick(single.el.timbre.value, accents[idx], 800);
-      const delay = Math.max(0, (single.nextNoteTime - audioCtx.currentTime) * 1000);
+      const isAcc = accents[idx];
+      const start = single.nextNoteTime;
+      const timbre = single.el.timbre.value;
+      if (single.el.mixEnabled.checked) {
+        const mix = singleMix();
+        // Слои внутри одной доли: смещение (в долях доли) -> громкость.
+        // Совпадающие позиции (напр. 1/2 у восьмых и шестнадцатых) объединяем по максимуму.
+        const events = new Map();
+        const add = (off, vol) => { if (vol > 0.001) events.set(off, Math.max(events.get(off) || 0, vol)); };
+        add(0, isAcc ? mix.accent : mix.quarter);
+        if (mix.eighth > 0) add(0.5, mix.eighth);
+        if (mix.sixteenth > 0) { add(0.25, mix.sixteenth); add(0.5, mix.sixteenth); add(0.75, mix.sixteenth); }
+        if (mix.triplet > 0) { add(1 / 3, mix.triplet); add(2 / 3, mix.triplet); }
+
+        for (const [off, vol] of events) {
+          playClick(timbre, off === 0 && isAcc, 800, vol, start + off * dur);
+        }
+      } else {
+        // Микширование выключено — играем только базовые доли
+        playClick(timbre, isAcc, 800, 1, start);
+      }
+
+      const delay = Math.max(0, (start - audioCtx.currentTime) * 1000);
       setTimeout(() => { if (single.playing) highlight(single.el.beats, idx); }, delay);
       single.nextNoteTime += dur;
       single.currentBeat = (single.currentBeat + 1) % n;
@@ -997,6 +1202,8 @@
       single.el.grouping.value = p.grouping;
       single.el.timbre.value = p.timbre || 'square';
       single.el.strong.checked = p.strong !== false;
+      applyMix(p.mix);
+      setMixEnabled(p.mixEnabled !== false);
       singleRender();
     } else if (p.type === 'poly') {
       document.querySelector('.tab[data-tab="poly"]').click();
@@ -1047,11 +1254,20 @@
     const strong = single.el.strong.checked;
     const timbre = single.el.timbre.value;
     const timbreNames = { square:'Sq', sine:'Sine', triangle:'Tri', sawtooth:'Saw', noise:'Noise', wood:'Wood' };
-    const name = `${n}/${den}${grp ? ' ('+grp+')' : ''} · ${timbreNames[timbre]}${strong ? '' : ' · без акц.'} — ${single.el.bpm.value} BPM`;
+    const mix = singleMix();
+    const mixOn = single.el.mixEnabled.checked;
+    const sub = [];
+    if (mixOn) {
+      if (mix.eighth > 0) sub.push('8');
+      if (mix.sixteenth > 0) sub.push('16');
+      if (mix.triplet > 0) sub.push('T');
+    }
+    const mixTag = mixOn ? (sub.length ? ' · ' + sub.join('+') : '') : ' · без микса';
+    const name = `${n}/${den}${grp ? ' ('+grp+')' : ''} · ${timbreNames[timbre]}${strong ? '' : ' · без акц.'}${mixTag} — ${single.el.bpm.value} BPM`;
     const list = loadPresets();
     list.push({
       type: 'single', name, num: n, den, bpm: parseInt(single.el.bpm.value, 10),
-      grouping: grp, strong, timbre
+      grouping: grp, strong, timbre, mix, mixEnabled: mixOn
     });
     savePresets(list); renderPresets();
   });
@@ -1078,7 +1294,7 @@
   });
 
   // ---------- Init ----------
-  singleRender(); polyRender();
+  singleRender(); polyRender(); syncMix(); setMixEnabled(single.el.mixEnabled.checked);
   single.el.bpmLbl.textContent = single.el.bpm.value;
   poly.el.bpmLbl.textContent = poly.el.bpm.value;
   renderPresets();
