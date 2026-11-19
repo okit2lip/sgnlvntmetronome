@@ -100,7 +100,44 @@
   .group-msg.hint { color: #7c8296; }
 
   .tempo-val { font-size: 26px; font-weight: 700; text-align: center; margin: 2px 0 10px; color: #fff; }
-  input[type=range] { width: 100%; accent-color: #7aa2ff; }
+
+  /* Крупный ползунок темпа: увеличенный трек и большая ручка для точной настройки */
+  input[type=range] {
+    width: 100%; height: 46px; cursor: pointer; margin: 2px 0;
+    -webkit-appearance: none; appearance: none; background: transparent;
+  }
+  input[type=range]:focus, input[type=range]:focus-visible {
+    outline: none; border: none; background: transparent; box-shadow: none;
+  }
+  input[type=range]::-webkit-slider-runnable-track {
+    height: 16px; border-radius: 999px;
+    background: rgba(255,255,255,.14);
+    border: 1px solid rgba(255,255,255,.18);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 -2px 6px rgba(0,0,0,.28);
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 36px; height: 36px; margin-top: -10px; border-radius: 50%;
+    background: linear-gradient(160deg, #b3cbff, #5b8cff);
+    border: 2px solid rgba(255,255,255,.9);
+    box-shadow: 0 8px 20px rgba(91,140,255,.6), inset 0 2px 3px rgba(255,255,255,.65);
+    transition: transform .12s ease;
+  }
+  input[type=range]:active::-webkit-slider-thumb { transform: scale(1.08); }
+  input[type=range]:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 6px rgba(91,140,255,.35), 0 8px 20px rgba(91,140,255,.6);
+  }
+  input[type=range]::-moz-range-track {
+    height: 16px; border-radius: 999px;
+    background: rgba(255,255,255,.14);
+    border: 1px solid rgba(255,255,255,.18);
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(160deg, #b3cbff, #5b8cff);
+    border: 2px solid rgba(255,255,255,.9);
+    box-shadow: 0 8px 20px rgba(91,140,255,.6);
+  }
 
   .beats {
     display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 16px 0;
@@ -121,16 +158,26 @@
   .beat.accent { border-color: rgba(255,180,90,.75); color: #ffc17a; }
   .beat.accent.active { color: #fff; }
 
-  .controls { display: flex; gap: 12px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+  .controls { display: flex; gap: 14px; justify-content: center; align-items: stretch; margin-top: 12px; flex-wrap: wrap; }
   button {
     padding: 12px 24px; border-radius: 16px; border: 1px solid rgba(255,255,255,.16); font-size: 15px; font-weight: 600;
     cursor: pointer; color: #e8eaf2; background: rgba(255,255,255,.08);
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 8px 18px rgba(0,0,0,.3);
     transition: transform .08s, background .2s, box-shadow .2s, border-color .2s;
+    touch-action: manipulation; -webkit-tap-highlight-color: transparent;
   }
   button:hover { background: rgba(255,255,255,.15); }
   button:active { transform: scale(.96); }
+  button:focus-visible { outline: 3px solid rgba(130,170,255,.95); outline-offset: 3px; }
+
+  /* Крупные кнопки для игры на живом концерте: большая площадь, высота и контраст */
+  .btn-lg {
+    flex: 1; min-width: 180px; min-height: 88px;
+    padding: 20px 30px; font-size: 23px; font-weight: 700; letter-spacing: .4px;
+    border-radius: 22px; user-select: none;
+  }
+  .btn-lg:active { transform: scale(.95); }
   #startBtn, #startPolyBtn {
     background: linear-gradient(160deg, rgba(140,180,255,.95), rgba(91,140,255,.8));
     border-color: rgba(255,255,255,.4); color: #fff;
@@ -141,8 +188,32 @@
     border-color: rgba(255,255,255,.4);
     box-shadow: 0 10px 26px rgba(255,91,110,.45), inset 0 1px 0 rgba(255,255,255,.5);
   }
-  #tapBtn, #saveBtn { color: #d6d9e4; }
+  #tapBtn {
+    color: #fff;
+    background: linear-gradient(160deg, rgba(255,255,255,.2), rgba(255,255,255,.08));
+    border-color: rgba(255,255,255,.3);
+  }
+  #tapBtn:hover { background: linear-gradient(160deg, rgba(255,255,255,.3), rgba(255,255,255,.15)); }
+
+  /* Компактная второстепенная кнопка сохранения — по центру внизу */
+  .save-row { display: flex; justify-content: center; margin-top: 16px; }
+  #saveBtn, #savePolyBtn {
+    padding: 8px 16px; font-size: 13px; font-weight: 500; border-radius: 12px;
+    color: #b9bfd0; background: rgba(255,255,255,.06);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 4px 10px rgba(0,0,0,.22);
+  }
+  #saveBtn:hover, #savePolyBtn:hover { color: #eef0f6; background: rgba(255,255,255,.12); }
   .tap-info { text-align: center; font-size: 12px; color: #aab1c4; margin-top: 8px; }
+
+  /* Быстрый переключатель пресетов под кнопками Старт / Tap tempo */
+  .preset-bar { display: flex; gap: 8px; align-items: stretch; margin-top: 14px; }
+  .preset-bar select { flex: 1; min-width: 0; }
+  .preset-bar select:disabled { opacity: .55; cursor: default; }
+  .preset-nav {
+    flex: 0 0 auto; width: 54px; min-height: 52px; padding: 0;
+    font-size: 26px; font-weight: 700; line-height: 1; border-radius: 16px;
+    color: #e8eaf2;
+  }
 
   .poly-layers { display: flex; gap: 14px; flex-wrap: wrap; }
   .poly-card {
@@ -175,14 +246,62 @@
   .hint { font-size: 12px; color: #7c8296; margin-top: 18px; line-height: 1.5; }
   .hint strong { color: #c3c8d6; }
 
+  /* Компактный переключатель «Акцент на сильную долю» в стиле liquid glass */
   .checkbox-row {
-    display: flex; align-items: center; gap: 8px; margin: 10px 0 4px;
-    font-size: 13px; color: #dfe3ee; cursor: pointer; user-select: none;
+    display: inline-flex; align-items: center; gap: 10px;
+    margin: 12px 0 4px; font-size: 14px; color: #dfe3ee;
+    text-transform: none; letter-spacing: normal;
+    cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
   }
+  /* Настоящий чекбокс прячем, но оставляем доступным для клавиатуры и скриптов */
   .checkbox-row input[type=checkbox] {
-    width: 18px; height: 18px; accent-color: #ffb45a; cursor: pointer;
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
+    overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
   }
-  .checkbox-row label { margin: 0; text-transform: none; letter-spacing: 0; font-size: 13px; cursor: pointer; }
+  .checkbox-text { white-space: nowrap; }
+
+  /* Дорожка — матовое стекло */
+  .switch {
+    flex: 0 0 auto; position: relative; width: 52px; height: 30px; border-radius: 999px;
+    background: linear-gradient(160deg, rgba(255,255,255,.30), rgba(255,255,255,.10));
+    border: 1px solid rgba(255,255,255,.45);
+    backdrop-filter: blur(10px) saturate(160%);
+    -webkit-backdrop-filter: blur(10px) saturate(160%);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.7), inset 0 -2px 4px rgba(0,0,0,.25),
+                0 4px 10px rgba(0,0,0,.28);
+    transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
+  }
+  /* Блик сверху — «жидкое стекло» */
+  .switch::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0) 58%);
+  }
+  /* Ползунок — стеклянный шарик */
+  .switch::after {
+    content: ''; position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; border-radius: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(238,242,250,.82));
+    box-shadow: 0 2px 5px rgba(0,0,0,.35), inset 0 1px 2px rgba(255,255,255,.95),
+                inset 0 -2px 3px rgba(0,0,0,.12);
+    transition: transform .3s cubic-bezier(.2,.8,.3,1);
+  }
+  .checkbox-row:hover .switch { border-color: rgba(255,255,255,.7); }
+  /* Включено — прозрачное зелёное стекло */
+  .checkbox-row input[type=checkbox]:checked + .switch {
+    background: linear-gradient(160deg, rgba(90,222,120,.78), rgba(40,192,88,.62));
+    border-color: rgba(255,255,255,.6);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.75), inset 0 -2px 6px rgba(0,80,30,.35),
+                0 4px 12px rgba(40,192,88,.35);
+  }
+  .checkbox-row input[type=checkbox]:checked + .switch::after { transform: translateX(22px); }
+  .checkbox-row input[type=checkbox]:focus-visible + .switch {
+    outline: 3px solid rgba(130,170,255,.95); outline-offset: 3px;
+  }
+
+  /* На узких экранах крупные кнопки занимают всю ширину и остаются удобными для пальца */
+  @media (max-width: 520px) {
+    .btn-lg { min-width: 0; min-height: 78px; padding: 16px 14px; font-size: 19px; }
+    .controls { gap: 10px; }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .blob { animation: none !important; }
@@ -199,7 +318,7 @@
   <div class="header">
     <img class="logo" src="logo.jpg" alt="Логотип метронома «Ломай ритм»">
     <div class="header-text">
-      <h1>Метроном «Ломай ритм» v5</h1>
+      <h1> SIGNALOVNET метроном</h1>
       <div class="sub">Размер, акценты, тембр клика, полиметрия и пресеты</div>
     </div>
   </div>
@@ -214,7 +333,23 @@
     <div class="row">
       <div class="field">
         <label>Размер (числитель)</label>
-        <input type="number" id="num" value="5" min="1" max="24">
+        <select id="num">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5" selected>5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="13">13</option>
+          <option value="14">14</option>
+          <option value="15">15</option>
+        </select>
       </div>
       <div class="field">
         <label>Знаменатель</label>
@@ -251,17 +386,28 @@
       <div class="group-msg hint" id="groupMsg">Сумма групп должна равняться 5</div>
     </div>
 
-    <div class="checkbox-row">
+    <label class="checkbox-row">
       <input type="checkbox" id="strongBeat" checked>
-      <label for="strongBeat">Акцент на 1-ю долю</label>
-    </div>
+      <span class="switch" aria-hidden="true"></span>
+      <span class="checkbox-text">Акцент на сильную долю</span>
+    </label>
 
     <div class="beats" id="beats"></div>
 
     <div class="controls">
-      <button id="startBtn">▶ Старт</button>
-      <button id="tapBtn">Tap tempo</button>
-      <button id="saveBtn">💾 Сохранить пресет</button>
+      <button type="button" id="startBtn" class="btn-lg">▶ Старт</button>
+      <button type="button" id="tapBtn" class="btn-lg">Tap tempo</button>
+    </div>
+
+    <!-- Просмотр пресетов и быстрое переключение вперёд-назад -->
+    <div class="preset-bar">
+      <button type="button" id="presetPrev" class="preset-nav" title="Предыдущий пресет" aria-label="Предыдущий пресет">‹</button>
+      <select id="presetSelect" aria-label="Просмотр и выбор пресета"></select>
+      <button type="button" id="presetNext" class="preset-nav" title="Следующий пресет" aria-label="Следующий пресет">›</button>
+    </div>
+
+    <div class="save-row">
+      <button type="button" id="saveBtn">💾 Сохранить пресет</button>
     </div>
     <div class="tap-info" id="tapInfo">Нажми 3–4 раза в нужном темпе</div>
   </div>
@@ -274,7 +420,23 @@
         <div class="row">
           <div class="field">
             <label>Размер</label>
-            <input type="number" id="numA" value="5" min="1" max="24">
+            <select id="numA">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5" selected>5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+              <option value="14">14</option>
+              <option value="15">15</option>
+            </select>
           </div>
           <div class="field">
             <label>Знамен.</label>
@@ -302,10 +464,11 @@
             <option value="wood">Деревяшка</option>
           </select>
         </div>
-        <div class="checkbox-row">
+        <label class="checkbox-row">
           <input type="checkbox" id="strongA" checked>
-          <label for="strongA">Акцент на 1-ю долю</label>
-        </div>
+          <span class="switch" aria-hidden="true"></span>
+          <span class="checkbox-text">Акцент на сильную долю</span>
+        </label>
         <div class="beats" id="beatsA"></div>
       </div>
 
@@ -314,7 +477,23 @@
         <div class="row">
           <div class="field">
             <label>Размер</label>
-            <input type="number" id="numB" value="4" min="1" max="24">
+            <select id="numB">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4" selected>4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+              <option value="14">14</option>
+              <option value="15">15</option>
+            </select>
           </div>
           <div class="field">
             <label>Знамен.</label>
@@ -342,10 +521,11 @@
             <option value="wood">Деревяшка</option>
           </select>
         </div>
-        <div class="checkbox-row">
+        <label class="checkbox-row">
           <input type="checkbox" id="strongB" checked>
-          <label for="strongB">Акцент на 1-ю долю</label>
-        </div>
+          <span class="switch" aria-hidden="true"></span>
+          <span class="checkbox-text">Акцент на сильную долю</span>
+        </label>
         <div class="beats" id="beatsB"></div>
       </div>
     </div>
@@ -356,8 +536,10 @@
     </div>
 
     <div class="controls">
-      <button id="startPolyBtn">▶ Старт полиметрии</button>
-      <button id="savePolyBtn">💾 Сохранить пресет</button>
+      <button type="button" id="startPolyBtn" class="btn-lg">▶ Старт полиметрии</button>
+    </div>
+    <div class="save-row">
+      <button type="button" id="savePolyBtn">💾 Сохранить пресет</button>
     </div>
     <div class="hint" style="margin-top:12px;">
       Слой A и B могут иметь разные тембры — так сетки легче различать на слух.
@@ -579,7 +761,7 @@
   }
   single.el.startBtn.addEventListener('click', () => single.playing ? singleStop() : singleStart());
   single.el.bpm.addEventListener('input', () => { single.el.bpmLbl.textContent = single.el.bpm.value; });
-  single.el.num.addEventListener('input', singleRender);
+  single.el.num.addEventListener('change', singleRender);
   single.el.grouping.addEventListener('input', singleRender);
   single.el.strong.addEventListener('change', singleRender);
   // Предпрослушивание тембра при смене
@@ -677,7 +859,8 @@
   }
   poly.el.startBtn.addEventListener('click', () => poly.playing ? polyStop() : polyStart());
   poly.el.bpm.addEventListener('input', () => { poly.el.bpmLbl.textContent = poly.el.bpm.value; });
-  ['numA','numB','groupingA','groupingB'].forEach(k => poly.el[k].addEventListener('input', polyRender));
+  ['numA','numB'].forEach(k => poly.el[k].addEventListener('change', polyRender));
+  ['groupingA','groupingB'].forEach(k => poly.el[k].addEventListener('input', polyRender));
   poly.el.strongA.addEventListener('change', polyRender);
   poly.el.strongB.addEventListener('change', polyRender);
   // Предпрослушивание тембров поли
@@ -704,10 +887,80 @@
   }
   function savePresets(list) { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
 
+  // Индекс пресета, выбранного в быстром переключателе (-1 — ничего не выбрано)
+  let currentPresetIndex = -1;
+
+  // Безопасно ставит значение в выпадающий список размера; при необходимости добавляет вариант
+  function setNumSelect(sel, value) {
+    if (!sel) return;
+    const v = String(value);
+    if (![...sel.options].some(o => o.value === v)) {
+      const o = document.createElement('option');
+      o.value = v; o.textContent = v;
+      sel.appendChild(o);
+    }
+    sel.value = v;
+  }
+
+  // Заполняет выпадающий список просмотра пресетов; keepIndex сохраняет текущий выбор
+  function refreshPresetSelect(keepIndex) {
+    const sel = $('presetSelect');
+    if (!sel) return;
+    const list = loadPresets();
+    sel.innerHTML = '';
+    if (list.length === 0) {
+      const o = document.createElement('option');
+      o.value = ''; o.textContent = '— нет пресетов —';
+      sel.appendChild(o);
+      sel.disabled = true;
+      currentPresetIndex = -1;
+      return;
+    }
+    sel.disabled = false;
+    const ph = document.createElement('option');
+    ph.value = ''; ph.textContent = '— выберите пресет —';
+    sel.appendChild(ph);
+    list.forEach((p, i) => {
+      const o = document.createElement('option');
+      o.value = String(i);
+      o.textContent = p.name;
+      sel.appendChild(o);
+    });
+    const keep = (typeof keepIndex === 'number') ? keepIndex : currentPresetIndex;
+    if (keep >= 0 && keep < list.length) {
+      sel.value = String(keep);
+      currentPresetIndex = keep;
+    } else {
+      sel.value = '';
+      currentPresetIndex = -1;
+    }
+  }
+
+  // Загружает пресет по индексу с закольцовыванием (для кнопок ‹ / ›)
+  function loadPresetByIndex(i) {
+    const list = loadPresets();
+    if (list.length === 0) return;
+    const idx = ((i % list.length) + list.length) % list.length;
+    currentPresetIndex = idx;
+    const sel = $('presetSelect');
+    if (sel) sel.value = String(idx);
+    loadPreset(idx);
+  }
+
+  // Переключение на предыдущий (dir=-1) или следующий (dir=1) пресет
+  function stepPreset(dir) {
+    const list = loadPresets();
+    if (list.length === 0) return;
+    const base = (currentPresetIndex >= 0 && currentPresetIndex < list.length)
+      ? currentPresetIndex : (dir > 0 ? -1 : 0);
+    loadPresetByIndex(base + dir);
+  }
+
   function renderPresets() {
     const list = loadPresets();
     const container = $('presetList');
     container.innerHTML = '';
+    refreshPresetSelect();
     if (list.length === 0) {
       container.innerHTML = '<div class="empty">Пока нет сохранённых пресетов</div>';
       return;
@@ -729,7 +982,7 @@
       btn.addEventListener('click', () => {
         const list = loadPresets();
         list.splice(parseInt(btn.dataset.del, 10), 1);
-        savePresets(list); renderPresets();
+        savePresets(list); currentPresetIndex = -1; renderPresets();
       });
     });
   }
@@ -739,7 +992,7 @@
     if (!p) return;
     if (p.type === 'single') {
       document.querySelector('.tab[data-tab="single"]').click();
-      single.el.num.value = p.num;
+      setNumSelect(single.el.num, p.num);
       single.el.den.value = p.den;
       single.el.bpm.value = p.bpm;
       single.el.bpmLbl.textContent = p.bpm;
@@ -749,11 +1002,11 @@
       singleRender();
     } else if (p.type === 'poly') {
       document.querySelector('.tab[data-tab="poly"]').click();
-      poly.el.numA.value = p.numA; poly.el.denA.value = p.denA;
+      setNumSelect(poly.el.numA, p.numA); poly.el.denA.value = p.denA;
       poly.el.groupingA.value = p.groupingA;
       poly.el.timbreA.value = p.timbreA || 'sine';
       poly.el.strongA.checked = p.strongA !== false;
-      poly.el.numB.value = p.numB; poly.el.denB.value = p.denB;
+      setNumSelect(poly.el.numB, p.numB); poly.el.denB.value = p.denB;
       poly.el.groupingB.value = p.groupingB;
       poly.el.timbreB.value = p.timbreB || 'square';
       poly.el.strongB.checked = p.strongB !== false;
@@ -762,6 +1015,22 @@
       polyRender();
     }
   }
+
+  // ---------- События быстрого переключателя пресетов ----------
+  const presetSelectEl = $('presetSelect');
+  if (presetSelectEl) {
+    presetSelectEl.addEventListener('change', () => {
+      const v = presetSelectEl.value;
+      if (v === '') { currentPresetIndex = -1; return; }
+      const idx = parseInt(v, 10);
+      currentPresetIndex = idx;
+      loadPreset(idx);
+    });
+  }
+  const presetPrevEl = $('presetPrev');
+  if (presetPrevEl) presetPrevEl.addEventListener('click', () => stepPreset(-1));
+  const presetNextEl = $('presetNext');
+  if (presetNextEl) presetNextEl.addEventListener('click', () => stepPreset(1));
 
   function canSave(inputEl, n, label) {
     const v = validateGrouping(n, inputEl.value);
